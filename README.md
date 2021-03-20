@@ -1,5 +1,6 @@
 
 
+
 # Quickstart with OCI Java SDK for OSS
 
 This quickstart shows how to produce messages to and consume messages from an [**Oracle Streaming Service**](https://docs.oracle.com/en-us/iaas/Content/Streaming/Concepts/streamingoverview.htm) using the [OCI Java SDK](https://github.com/oracle/oci-java-sdk).
@@ -117,7 +118,7 @@ public class Producer {
 
 ```
 3.   Run the code on the terminal(from the same directory *wd*) follows 
-```
+```Shell
 mvn install exec:java -Dexec.mainClass=oci.sdk.oss.example.Producer
 ```
 4. In the OCI Web Console, quickly go to your Stream Page and click on *Load Messages* button. You should see the messages we just produced as below.
@@ -130,74 +131,121 @@ mvn install exec:java -Dexec.mainClass=oci.sdk.oss.example.Producer
  
  You can produce multiple test messages by clicking *Produce* button back to back, as shown below
 ![Produce multiple test message by clicking Produce button](https://github.com/mayur-oci/OssJs/blob/main/JavaScript/ActualProduceMessagePopUp.png?raw=true)
-2. Open your favorite editor, such as [Visual Studio Code](https://code.visualstudio.com) from the directory *wd*. You should already have oci-sdk packages for Python installed for your current python environment as per the *step 5 of Prerequisites* section).
-3. Create new file named *Consumer.py* in this directory and paste the following code in it.
-```Python
-import oci
-import time
-
-from base64 import b64decode
-
-ociMessageEndpoint = "https://cell-1.streaming.ap-mumbai-1.oci.oraclecloud.com"
-ociStreamOcid = "ocid1.stream.oc1.ap-mumbai-1.amaaaaaauwpiejqaxcfc2ht67wwohfg7mxcstfkh2kp3hweeenb3zxtr5khq"
-ociConfigFilePath = "~/.oci/config"
-ociProfileName = "DEFAULT"
-compartment = ""
-
-
-def get_cursor_by_group(sc, sid, group_name, instance_name):
-    print(" Creating a cursor for group {}, instance {}".format(group_name, instance_name))
-    cursor_details = oci.streaming.models.CreateGroupCursorDetails(group_name=group_name, instance_name=instance_name,
-                                                                   type=oci.streaming.models.
-                                                                   CreateGroupCursorDetails.TYPE_TRIM_HORIZON,
-                                                                   commit_on_get=True)
-    response = sc.create_group_cursor(sid, cursor_details)
-    return response.data.value
-
-def simple_message_loop(client, stream_id, initial_cursor):
-    cursor = initial_cursor
-    while True:
-        get_response = client.get_messages(stream_id, cursor, limit=10)
-        # No messages to process. return.
-        if not get_response.data:
-            return
-
-        # Process the messages
-        print(" Read {} messages".format(len(get_response.data)))
-        for message in get_response.data:
-            if message.key is None:
-                key = "Null"
-            else:
-                key = b64decode(message.key.encode()).decode()
-            print("{}: {}".format(key,
-                                  b64decode(message.value.encode()).decode()))
-
-        # get_messages is a throttled method; clients should retrieve sufficiently large message
-        # batches, as to avoid too many http requests.
-        time.sleep(1)
-        # use the next-cursor for iteration
-        cursor = get_response.headers["opc-next-cursor"]
-
-
-config = oci.config.from_file(ociConfigFilePath, ociProfileName)
-stream_client = oci.streaming.StreamClient(config, service_endpoint=ociMessageEndpoint)
-
-# A cursor can be created as part of a consumer group.
-# Committed offsets are managed for the group, and partitions
-# are dynamically balanced amongst consumers in the group.
-group_cursor = get_cursor_by_group(stream_client, ociStreamOcid, "example-group", "example-instance-1")
-simple_message_loop(stream_client, ociStreamOcid, group_cursor)
-
+2. Open your favorite editor, such as [Visual Studio Code](https://code.visualstudio.com) from the directory *wd*. You should already have oci-sdk dependencies for Java as part of your *pom.xml* of your maven java project  (as per the *step 6, step 7 of Prerequisites* section).
+3. Create new file named *Consumer.java* in this directory and paste the following code in it.
+```Java
+package oci.sdk.oss.example;  
+  
+import com.google.common.util.concurrent.Uninterruptibles;  
+import com.oracle.bmc.ConfigFileReader;  
+import com.oracle.bmc.auth.AuthenticationDetailsProvider;  
+import com.oracle.bmc.auth.ConfigFileAuthenticationDetailsProvider;  
+import com.oracle.bmc.streaming.StreamClient;  
+import com.oracle.bmc.streaming.model.CreateGroupCursorDetails;  
+import com.oracle.bmc.streaming.model.Message;  
+import com.oracle.bmc.streaming.requests.CreateGroupCursorRequest;  
+import com.oracle.bmc.streaming.requests.GetMessagesRequest;  
+import com.oracle.bmc.streaming.responses.CreateGroupCursorResponse;  
+import com.oracle.bmc.streaming.responses.GetMessagesResponse;  
+  
+import java.util.concurrent.TimeUnit;  
+  
+import static java.nio.charset.StandardCharsets.UTF_8;  
+  
+  
+public class Consumer {  
+    public static void main(String[] args) throws Exception {  
+        final String configurationFilePath = "~/.oci/config";  
+ final String profile = "DEFAULT";  
+ final String ociStreamOcid = "ocid1.stream.oc1.ap-mumbai-1." +  
+                "amaaaaaauwpiejqaxcfc2ht67wwohfg7mxcstfkh2kp3hweeenb3zxtr5khq";  
+ final String ociMessageEndpoint = "https://cell-1.streaming.ap-mumbai-1.oci.oraclecloud.com";  
+  
+ final ConfigFileReader.ConfigFile configFile = ConfigFileReader.parseDefault();  
+ final AuthenticationDetailsProvider provider =  
+                new ConfigFileAuthenticationDetailsProvider(configFile);  
+  
+  // Streams are assigned a specific endpoint url based on where they are provisioned.  
+ // Create a stream client using the provided message endpoint.  StreamClient streamClient = StreamClient.builder().endpoint(ociMessageEndpoint).build(provider);  
+  
+  // A cursor can be created as part of a consumer group.  
+ // Committed offsets are managed for the group, and partitions // are dynamically balanced amongst consumers in the group.  System.out.println("Starting a simple message loop with a group cursor");  
+  String groupCursor =  
+                getCursorByGroup(streamClient, ociStreamOcid, "exampleGroup", "exampleInstance-1");  
+  simpleMessageLoop(streamClient, ociStreamOcid, groupCursor);  
+  
+  }  
+  
+    private static void simpleMessageLoop(  
+            StreamClient streamClient, String streamId, String initialCursor) {  
+        String cursor = initialCursor;  
+ for (int i = 0; i < 10; i++) {  
+  
+            GetMessagesRequest getRequest =  
+                    GetMessagesRequest.builder()  
+                            .streamId(streamId)  
+                            .cursor(cursor)  
+                            .limit(25)  
+                            .build();  
+  
+  GetMessagesResponse getResponse = streamClient.getMessages(getRequest);  
+  
+  // process the messages  
+  System.out.println(String.format("Read %s messages.", getResponse.getItems().size()));  
+ for (Message message : ((GetMessagesResponse) getResponse).getItems()) {  
+                System.out.println(  
+                        String.format(  
+                                "%s: %s",  
+ new String(message.getKey(), UTF_8),  
+ new String(message.getValue(), UTF_8)));  
+  }  
+  
+            // getMessages is a throttled method; clients should retrieve sufficiently large message  
+ // batches, as to avoid too many http requests.  Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);  
+  
+  // use the next-cursor for iteration  
+  cursor = getResponse.getOpcNextCursor();  
+  }  
+    }  
+  
+    private static String getCursorByGroup(  
+            StreamClient streamClient, String streamId, String groupName, String instanceName) {  
+        System.out.println(  
+                String.format(  
+                        "Creating a cursor for group %s, instance %s.", groupName, instanceName));  
+  
+  CreateGroupCursorDetails cursorDetails =  
+                CreateGroupCursorDetails.builder()  
+                        .groupName(groupName)  
+                        .instanceName(instanceName)  
+                        .type(CreateGroupCursorDetails.Type.TrimHorizon)  
+                        .commitOnGet(true)  
+                        .build();  
+  
+  CreateGroupCursorRequest createCursorRequest =  
+                CreateGroupCursorRequest.builder()  
+                        .streamId(streamId)  
+                        .createGroupCursorDetails(cursorDetails)  
+                        .build();  
+  
+  CreateGroupCursorResponse groupCursorResponse =  
+                streamClient.createGroupCursor(createCursorRequest);  
+ return groupCursorResponse.getCursor().getValue();  
+  }  
+  
+}
 ```
 4. Run the code on the terminal(from the same directory *wd*) follows 
+```Shell
+mvn install exec:java -Dexec.mainClass=oci.sdk.oss.example.Consumer
 ```
-python Consumer.py
+5. You should see the messages similar to shown below. Note when we produce message from OCI Web Console(as described above in first step), the Key for each message is *Null*
 ```
-5. You should see the messages as shown below. Note when we produce message from OCI Web Console(as described above in first step), the Key for each message is *Null*
-```
-$:/path/to/directory/wd>python Consumer.py 
- Creating a cursor for group example-group, instance example-instance-1
- Read 2 messages
+$:/path/to/directory/wd>mvn install exec:java -Dexec.mainClass=oci.sdk.oss.example.Consumer
+ [INFO related maven compiling and building the Java code]
+Starting a simple message loop with a group cursor
+Creating a cursor for group exampleGroup, instance exampleInstance-1.
+Read 25 messages.
 Null: Example Test Message 0
 Null: Example Test Message 0
  Read 2 messages
