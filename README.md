@@ -64,85 +64,88 @@ This quickstart shows how to produce messages to and consume messages from an [*
 1. Open your favorite editor, such as [Visual Studio Code](https://code.visualstudio.com) from the directory *wd*. You should already have oci-sdk dependencies for Java as part of your *pom.xml* of your maven java project  (as per the *step 6, step 7 of Prerequisites* section).
 2. Create new file named *Producer.java* in this directory and paste the following code in it.
 ```Java
-package oci.sdk.oss.example;  
-  
-import com.oracle.bmc.ConfigFileReader;  
-import com.oracle.bmc.auth.AuthenticationDetailsProvider;  
-import com.oracle.bmc.auth.ConfigFileAuthenticationDetailsProvider;  
-import com.oracle.bmc.streaming.StreamClient;  
-import com.oracle.bmc.streaming.model.PutMessagesDetails;  
-import com.oracle.bmc.streaming.model.PutMessagesDetailsEntry;  
-import com.oracle.bmc.streaming.model.PutMessagesResultEntry;  
-import com.oracle.bmc.streaming.requests.PutMessagesRequest;  
-import com.oracle.bmc.streaming.responses.PutMessagesResponse;  
-import org.apache.commons.lang3.StringUtils;  
-  
-import java.util.ArrayList;  
-import java.util.List;  
-  
-import static java.nio.charset.StandardCharsets.UTF_8;  
-  
-public class Producer {  
-    public static void main(String[] args) throws Exception {  
-        final String configurationFilePath = "~/.oci/config";  
- final String profile = "DEFAULT";  
- final String ociStreamOcid = "ocid1.stream.oc1.ap-mumbai-1." +  
-                "amaaaaaauwpiejqaxcfc2ht67wwohfg7mxcstfkh2kp3hweeenb3zxtr5khq";  
- final String ociMessageEndpoint = "https://cell-1.streaming.ap-mumbai-1.oci.oraclecloud.com";  
-  
-  
- final ConfigFileReader.ConfigFile configFile = ConfigFileReader.parseDefault();  
- final AuthenticationDetailsProvider provider =  
-                new ConfigFileAuthenticationDetailsProvider(configFile);  
-  
-  // Streams are assigned a specific endpoint url based on where they are provisioned.  
- // Create a stream client using the provided message endpoint.  StreamClient streamClient = StreamClient.builder().endpoint(ociMessageEndpoint).build(provider);  
-  
-  // publish some messages to the stream  
-  publishExampleMessages(streamClient, ociStreamOcid);  
-  
-  }  
-  
-    private static void publishExampleMessages(StreamClient streamClient, String streamId) {  
-        // build up a putRequest and publish some messages to the stream  
-  List<PutMessagesDetailsEntry> messages = new ArrayList<>();  
- for (int i = 0; i < 50; i++) {  
-            messages.add(  
-                    PutMessagesDetailsEntry.builder()  
-                            .key(String.format("messageKey%s", i).getBytes(UTF_8))  
-                            .value(String.format("messageValue%s", i).getBytes(UTF_8))  
-                            .build());  
-  }  
-  
-        System.out.println(  
-                String.format("Publishing %s messages to stream %s.", messages.size(), streamId));  
-  PutMessagesDetails messagesDetails =  
-                PutMessagesDetails.builder().messages(messages).build();  
-  
-  PutMessagesRequest putRequest =  
-                PutMessagesRequest.builder()  
-                        .streamId(streamId)  
-                        .putMessagesDetails(messagesDetails)  
-                        .build();  
-  
-  PutMessagesResponse putResponse = streamClient.putMessages(putRequest);  
-  
-  // the putResponse can contain some useful metadata for handling failures  
-  for (PutMessagesResultEntry entry : putResponse.getPutMessagesResult().getEntries()) {  
-            if (StringUtils.isNotBlank(entry.getError())) {  
-                System.out.println(  
-                        String.format("Error(%s): %s", entry.getError(), entry.getErrorMessage()));  
-  } else {  
-                System.out.println(  
-                        String.format(  
-                                "Published message to partition %s, offset %s.",  
-  entry.getPartition(),  
-  entry.getOffset()));  
-  }  
-        }  
-    }  
-  
+package oci.sdk.oss.example;
+
+import com.oracle.bmc.ConfigFileReader;
+import com.oracle.bmc.auth.AuthenticationDetailsProvider;
+import com.oracle.bmc.auth.ConfigFileAuthenticationDetailsProvider;
+import com.oracle.bmc.streaming.StreamClient;
+import com.oracle.bmc.streaming.model.PutMessagesDetails;
+import com.oracle.bmc.streaming.model.PutMessagesDetailsEntry;
+import com.oracle.bmc.streaming.model.PutMessagesResultEntry;
+import com.oracle.bmc.streaming.requests.PutMessagesRequest;
+import com.oracle.bmc.streaming.responses.PutMessagesResponse;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+public class Producer {
+    public static void main(String[] args) throws Exception {
+        final String configurationFilePath = "~/.oci/config";
+        final String profile = "DEFAULT";
+        final String ociStreamOcid = "ocid1.stream.oc1.ap-mumbai-1." +
+                "amaaaaaauwpiejqaxcfc2ht67wwohfg7mxcstfkh2kp3hweeenb3zxtr5khq";
+        final String ociMessageEndpoint = "https://cell-1.streaming.ap-mumbai-1.oci.oraclecloud.com";
+
+
+        final ConfigFileReader.ConfigFile configFile = ConfigFileReader.parseDefault();
+        final AuthenticationDetailsProvider provider =
+                new ConfigFileAuthenticationDetailsProvider(configFile);
+
+        // Streams are assigned a specific endpoint url based on where they are provisioned.
+        // Create a stream client using the provided message endpoint.
+        StreamClient streamClient = StreamClient.builder().endpoint(ociMessageEndpoint).build(provider);
+
+        // publish some messages to the stream
+        publishExampleMessages(streamClient, ociStreamOcid);
+
+    }
+
+    private static void publishExampleMessages(StreamClient streamClient, String streamId) {
+        // build up a putRequest and publish some messages to the stream
+        List<PutMessagesDetailsEntry> messages = new ArrayList<>();
+        for (int i = 0; i < 50; i++) {
+            messages.add(
+                    PutMessagesDetailsEntry.builder()
+                            .key(String.format("messageKey%s", i).getBytes(UTF_8))
+                            .value(String.format("messageValue%s", i).getBytes(UTF_8))
+                            .build());
+        }
+
+        System.out.println(
+                String.format("Publishing %s messages to stream %s.", messages.size(), streamId));
+        PutMessagesDetails messagesDetails =
+                PutMessagesDetails.builder().messages(messages).build();
+
+        PutMessagesRequest putRequest =
+                PutMessagesRequest.builder()
+                        .streamId(streamId)
+                        .putMessagesDetails(messagesDetails)
+                        .build();
+
+        PutMessagesResponse putResponse = streamClient.putMessages(putRequest);
+
+        // the putResponse can contain some useful metadata for handling failures
+        for (PutMessagesResultEntry entry : putResponse.getPutMessagesResult().getEntries()) {
+            if (StringUtils.isNotBlank(entry.getError())) {
+                System.out.println(
+                        String.format("Error(%s): %s", entry.getError(), entry.getErrorMessage()));
+            } else {
+                System.out.println(
+                        String.format(
+                                "Published message to partition %s, offset %s.",
+                                entry.getPartition(),
+                                entry.getOffset()));
+            }
+        }
+    }
+
+
 }
+
 
 ```
 3.   Run the code on the terminal(from the same directory *wd*) follows 
