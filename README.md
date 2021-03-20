@@ -9,19 +9,17 @@ This quickstart shows how to produce messages to and consume messages from an [*
 1. You need have OCI account subscription or free account. typical links @jb
 2. Follow [these steps](https://github.com/mayur-oci/OssJs/blob/main/JavaScript/CreateStream.md) to create Streampool and Stream in OCI. If you do  already have stream created, refer step 3 [here](https://github.com/mayur-oci/OssJs/blob/main/JavaScript/CreateStream.md) to capture/record message endpoint and OCID of the stream. We need this Information for upcoming steps.
 3. JDK 8 or above installed. Make sure Java is in your PATH.
-4. Maven 3.0 or installed(optional). Make sure Maven is in your PATH.
+4. Maven 3.0 or installed. Make sure Maven is in your PATH. 
 5. Intellij(recommended) or any other integrated development environment (IDE).
-6. Download the latest dependency or jar for [OCI Java SDK for IAM](https://search.maven.org/artifact/com.oracle.oci.sdk/oci-java-sdk-common/) and keep it in your classpath for your Java code or simply keep it in the working directory(say *wd*) of your code. 
-If you are using maven, add the following dependency to your pom. Get the latest version from maven [here](https://search.maven.org/artifact/com.oracle.oci.sdk/oci-java-sdk-streaming).
+6. Add the latest version of maven dependency or jar for [OCI Java SDK for IAM](https://search.maven.org/artifact/com.oracle.oci.sdk/oci-java-sdk-common/) to your *pom.xml* as shown below.
 ```Xml
 	<dependency>
 	  <groupId>com.oracle.oci.sdk</groupId>
 	  <artifactId>oci-java-sdk-common</artifactId>
-	  <version>1.33.2</version>
+	  <version>LATEST</version>
 	</dependency>
 ```
-7. Download the latest dependency or jar for [OCI Java SDK for OSS](https://search.maven.org/artifact/com.oracle.oci.sdk/oci-java-sdk-streaming) and keep it in your classpath for your Java code or simply keep it in the working directory(say *wd*) of your code. 
-If you are using maven, add the following dependency to your pom. Get the latest version from maven [here](https://search.maven.org/artifact/com.oracle.oci.sdk/oci-java-sdk-streaming).
+7. Add the latest version of maven dependency or jar for [OCI Java SDK for OSS](https://search.maven.org/artifact/com.oracle.oci.sdk/oci-java-sdk-streaming) to your *pom.xml* as shown below..
 ```Xml
 	<dependency>
 	  <groupId>com.oracle.oci.sdk</groupId>
@@ -29,7 +27,38 @@ If you are using maven, add the following dependency to your pom. Get the latest
 	  <version>LATEST</version> 
 	</dependency>
 ```
-8. Make sure you have [SDK and CLI Configuration File](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm#SDK_and_CLI_Configuration_File) setup. For production, you should use [Instance Principle Authentication](https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/callingservicesfrominstances.htm).
+8. Assuming *wd* as your working directory for your Java project of this example, your *pom.xml* will look similar to one shown below
+```Xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>oci.example</groupId>
+    <artifactId>StreamsJava</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.oracle.oci.sdk</groupId>
+            <artifactId>oci-java-sdk-common</artifactId>
+            <version>1.33.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.oci.sdk</groupId>
+            <artifactId>oci-java-sdk-streaming</artifactId>
+            <version>1.33.2</version>
+        </dependency>
+    </dependencies>
+</project>
+```
+10. Make sure you have [SDK and CLI Configuration File](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm#SDK_and_CLI_Configuration_File) setup. For production, you should use [Instance Principle Authentication](https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/callingservicesfrominstances.htm).
 
 ## Producing messages to OSS
 1. Open your favorite editor, such as [Visual Studio Code](https://code.visualstudio.com) from the directory *wd*. You should already have oci-sdk dependencies for Java as part of your *pom.xml* of your maven java project  (as per the *step 6, step 7 of Prerequisites* section).
