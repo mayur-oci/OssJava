@@ -10,61 +10,36 @@ This quickstart shows how to produce messages to and consume messages from an [*
 2. Follow [these steps](https://github.com/mayur-oci/OssJs/blob/main/JavaScript/CreateStream.md) to create Streampool and Stream in OCI. If you do  already have stream created, refer step 3 [here](https://github.com/mayur-oci/OssJs/blob/main/JavaScript/CreateStream.md) to capture/record message endpoint and OCID of the stream. We need this Information for upcoming steps.
 3. Java JDK 8 or above
 4. Visual Studio Code(recommended) or any other integrated development environment (IDE).
-5. Download the latest dependency or jar for [OCI Java SDK for OSS](https://search.maven.org/artifact/com.oracle.oci.sdk/oci-java-sdk-streaming) and keep it in your classpath for your Java code. 
+5. Download the latest dependency or jar for [OCI Java SDK for IAM](https://search.maven.org/artifact/com.oracle.oci.sdk/oci-java-sdk-common/) and keep it in your classpath for your Java code. 
 If you are using maven, add the following dependency to your pom. Get the latest version from maven [here](https://search.maven.org/artifact/com.oracle.oci.sdk/oci-java-sdk-streaming).
 ```Xml
-  <dependency>
-  <groupId>com.oracle.oci.sdk</groupId>
-  <artifactId>oci-java-sdk-streaming</artifactId>
-  <version>1.33.2</version> 
-</dependency>
+	<dependency>
+	  <groupId>com.oracle.oci.sdk</groupId>
+	  <artifactId>oci-java-sdk-common</artifactId>
+	  <version>1.33.2</version>
+	</dependency>
 ```
-6. Make sure you have [SDK and CLI Configuration File](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm#SDK_and_CLI_Configuration_File) setup. For production, you should use [Instance Principle Authentication](https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/callingservicesfrominstances.htm).
+6. Download the latest dependency or jar for [OCI Java SDK for OSS](https://search.maven.org/artifact/com.oracle.oci.sdk/oci-java-sdk-streaming) and keep it in your classpath for your Java code. 
+If you are using maven, add the following dependency to your pom. Get the latest version from maven [here](https://search.maven.org/artifact/com.oracle.oci.sdk/oci-java-sdk-streaming).
+```Xml
+	<dependency>
+	  <groupId>com.oracle.oci.sdk</groupId>
+	  <artifactId>oci-java-sdk-streaming</artifactId>
+	  <version>LATEST</version> 
+	</dependency>
+```
+7. Make sure you have [SDK and CLI Configuration File](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm#SDK_and_CLI_Configuration_File) setup. For production, you should use [Instance Principle Authentication](https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/callingservicesfrominstances.htm).
 
 ## Producing messages to OSS
 1. Open your favorite editor, such as [Visual Studio Code](https://code.visualstudio.com) from the directory *wd*. You should already have oci-sdk packages for Python installed for your current python environment (as per the *step 5 of Prerequisites* section).
 2. Create new file named *Producer.py* in this directory and paste the following code in it.
-```Python
-import oci  
-  
-from base64 import b64encode  
-  
-ociMessageEndpoint = "https://cell-1.streaming.ap-mumbai-1.oci.oraclecloud.com"  
-ociStreamOcid = "ocid1.stream.oc1.ap-mumbai-1.amaaaaaauwpiejqaxcfc2ht67wwohfg7mxcstfkh2kp3hweeenb3zxtr5khq"  
-ociConfigFilePath = "~/.oci/config"  
-ociProfileName = "DEFAULT"  
-  
-def produce_messages(client, stream_id):  
-    # Build up a PutMessagesDetails and publish some messages to the stream  
-  message_list = []  
-    for i in range(100):  
-        key = "messageKey" + str(i)  
-        value = "messageValue " + str(i)  
-        encoded_key = b64encode(key.encode()).decode()  
-        encoded_value = b64encode(value.encode()).decode()  
-        message_list.append(oci.streaming.models.PutMessagesDetailsEntry(key=encoded_key, value=encoded_value))  
-  
-    print("Publishing {} messages to the stream {} ".format(len(message_list), stream_id))  
-    messages = oci.streaming.models.PutMessagesDetails(messages=message_list)  
-    put_message_result = client.put_messages(stream_id, messages)  
-  
-    # The put_message_result can contain some useful metadata for handling failures  
-  for entry in put_message_result.data.entries:  
-        if entry.error:  
-            print("Error ({}) : {}".format(entry.error, entry.error_message))  
-        else:  
-            print("Published message to partition {} , offset {}".format(entry.partition, entry.offset))  
-  
-  
-config = oci.config.from_file(ociConfigFilePath, ociProfileName)  
-stream_client = oci.streaming.StreamClient(config, service_endpoint=ociMessageEndpoint)  
-  
-# Publish some messages to the stream  
-produce_messages(stream_client, ociStreamOcid)
+```Java
+
+
 ```
 3.   Run the code on the terminal(from the same directory *wd*) follows 
 ```
-python Producer.py
+java Producer.java
 ```
 4. In the OCI Web Console, quickly go to your Stream Page and click on *Load Messages* button. You should see the messages we just produced as below.
 ![See Produced Messages in OCI Wb Console](https://github.com/mayur-oci/OssJs/blob/main/JavaScript/StreamExampleLoadMessages.png?raw=true)
