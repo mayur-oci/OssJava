@@ -1,6 +1,5 @@
 
 
-
 # Quickstart with OCI Java SDK for OSS
 
 This quickstart shows how to produce messages to and consume messages from an [**Oracle Streaming Service**](https://docs.oracle.com/en-us/iaas/Content/Streaming/Concepts/streamingoverview.htm) using the [OCI Java SDK](https://github.com/oracle/oci-java-sdk).
@@ -131,7 +130,9 @@ mvn install exec:java -Dexec.mainClass=oci.sdk.oss.example.Producer
  
  You can produce multiple test messages by clicking *Produce* button back to back, as shown below
 ![Produce multiple test message by clicking Produce button](https://github.com/mayur-oci/OssJs/blob/main/JavaScript/ActualProduceMessagePopUp.png?raw=true)
+
 2. Open your favorite editor, such as [Visual Studio Code](https://code.visualstudio.com) from the directory *wd*. You should already have oci-sdk dependencies for Java as part of your *pom.xml* of your maven java project  (as per the *step 6, step 7 of Prerequisites* section).
+
 3. Create new file named *Consumer.java* in this directory and paste the following code in it.
 ```Java
 package oci.sdk.oss.example;  
