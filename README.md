@@ -62,7 +62,7 @@ This quickstart shows how to produce messages to and consume messages from an [*
 
 ## Producing messages to OSS
 1. Open your favorite editor, such as [Visual Studio Code](https://code.visualstudio.com) from the directory *wd*. You should already have oci-sdk dependencies for Java as part of your *pom.xml* of your maven java project  (as per the *step 6, step 7 of Prerequisites* section).
-2. Create new file named *Producer.java* in this directory and paste the following code in it.
+2. Create new file named *Producer.java* in directory *wd* with following code after you replace values of variables configurationFilePath, profile ,ociStreamOcid and ociMessageEndpoint in the follwing code snippet with values applicable for your tenancy. 
 ```Java
 package oci.sdk.oss.example;
 
@@ -165,7 +165,7 @@ mvn install exec:java -Dexec.mainClass=oci.sdk.oss.example.Producer
 
 2. Open your favorite editor, such as [Visual Studio Code](https://code.visualstudio.com) from the directory *wd*. You should already have oci-sdk dependencies for Java as part of your *pom.xml* of your maven java project  (as per the *step 6, step 7 of Prerequisites* section).
 
-3. Create new file named *Consumer.java* in this directory and paste the following code in it.
+3. Create new file named *Consumer.java* in directory *wd* with following code after you replace values of variables configurationFilePath, profile ,ociStreamOcid and ociMessageEndpoint in the follwing code snippet with values applicable for your tenancy. 
 ```Java
 package oci.sdk.oss.example;
 
