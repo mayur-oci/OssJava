@@ -2,32 +2,24 @@
 
 # Quickstart with OCI Java SDK for OSS
 
-This quickstart shows how to produce messages to and consume messages from an [**Oracle Streaming Service**](https://docs.oracle.com/en-us/iaas/Content/Streaming/Concepts/streamingoverview.htm) using the [OCI Java SDK](https://github.com/oracle/oci-java-sdk).
+This quickstart shows how to produce messages to and consume messages from an [Oracle Streaming Service](https://docs.oracle.com/en-us/iaas/Content/Streaming/Concepts/streamingoverview.htm) using the [Kafka Java Client](https://docs.confluent.io/clients-kafka-java/current/overview.html). Please note, OSS is API compatible with Apache Kafka. Hence developers who are already familiar with Kafka need to make only few minimal changes to their Kafka client code, like config values like endpoint for Kafka brokers!
 
 ## Prerequisites
 
-1. You need have OCI account subscription or free account. typical links @jb
-2. Follow [these steps](https://github.com/mayur-oci/OssJs/blob/main/JavaScript/CreateStream.md) to create Streampool and Stream in OCI. If you do  already have stream created, refer step 3 [here](https://github.com/mayur-oci/OssJs/blob/main/JavaScript/CreateStream.md) to capture/record message endpoint and OCID of the stream. We need this Information for upcoming steps.
-3. JDK 8 or above installed. Make sure Java is in your PATH.
-4. Maven 3.0 or installed. Make sure Maven is in your PATH. 
+1. You need have [OCI account subscription or free account](https://www.oracle.com/cloud/free/). 
+2. Follow  [these steps](https://github.com/mayur-oci/OssJs/blob/main/JavaScript/CreateStream.md)  to create Streampool and Stream in OCI. If you do already have stream created, refer step 4 [here](https://github.com/mayur-oci/OssJs/blob/main/JavaScript/CreateStream.md)  to capture information related to  `Kafka Connection Settings`. We need this Information for upcoming steps.
+3. JDK 8 or above installed. Make sure *java* is in your PATH.
+4. Maven 3.0 or installed. Make sure *mvn* is in your PATH. 
 5. Intellij(recommended) or any other integrated development environment (IDE).
 6. Add the latest version of maven dependency or jar for [OCI Java SDK for IAM](https://search.maven.org/artifact/com.oracle.oci.sdk/oci-java-sdk-common/) to your *pom.xml* as shown below.
 ```Xml
 	<dependency>
-	  <groupId>com.oracle.oci.sdk</groupId>
-	  <artifactId>oci-java-sdk-common</artifactId>
-	  <version>LATEST</version>
+		<groupId>org.apache.kafka</groupId>
+		<artifactId>kafka-clients</artifactId>
+		<version>2.8.0</version>
 	</dependency>
 ```
-7. Add the latest version of maven dependency or jar for [OCI Java SDK for OSS](https://search.maven.org/artifact/com.oracle.oci.sdk/oci-java-sdk-streaming) to your *pom.xml* as shown below..
-```Xml
-	<dependency>
-	  <groupId>com.oracle.oci.sdk</groupId>
-	  <artifactId>oci-java-sdk-streaming</artifactId>
-	  <version>LATEST</version> 
-	</dependency>
-```
-8. Assuming *wd* as your working directory for your Java project of this example, your *pom.xml* will look similar to one shown below
+7. Assuming *wd* as your working directory for your Java project of this example, your *pom.xml* will look similar to one shown below
 ```Xml
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -36,7 +28,7 @@ This quickstart shows how to produce messages to and consume messages from an [*
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>oci.example</groupId>
-    <artifactId>StreamsJava</artifactId>
+    <artifactId>StreamsExampleWithKafkaApis</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -45,16 +37,11 @@ This quickstart shows how to produce messages to and consume messages from an [*
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>com.oracle.oci.sdk</groupId>
-            <artifactId>oci-java-sdk-common</artifactId>
-            <version>1.33.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.oracle.oci.sdk</groupId>
-            <artifactId>oci-java-sdk-streaming</artifactId>
-            <version>1.33.2</version>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>kafka-clients</artifactId>
+			<version>2.8.0</version>
+		</dependency>
     </dependencies>
 </project>
 ```
