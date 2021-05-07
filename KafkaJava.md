@@ -1,4 +1,4 @@
-
+  
 
 # Quickstart with OCI Java SDK for OSS
 
@@ -45,99 +45,18 @@ This quickstart shows how to produce messages to and consume messages from an [O
     </dependencies>
 </project>
 ```
-10. Make sure you have [SDK and CLI Configuration File](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm#SDK_and_CLI_Configuration_File) setup. For production, you should use [Instance Principle Authentication](https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/callingservicesfrominstances.htm).
+8.  Authentication with the Kafka protocol uses auth-tokens and the SASL/PLAIN mechanism. Follow  [Working with Auth Tokens](https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/managingcredentials.htm#Working)  for auth-token generation. Since you have created the stream(aka Kafka Topic) and Streampool in OCI, you are already authorized to use this stream as per OCI IAM. Hence create auth-token for your user in OCI. These  `OCI user auth-tokens`  are visible only once at the time of creation. Hence please copy it and keep it somewhere safe, as we are going to need it later.
 
 ## Producing messages to OSS
-1. Open your favorite editor, such as [Visual Studio Code](https://code.visualstudio.com) from the directory *wd*. You should already have oci-sdk dependencies for Java as part of your *pom.xml* of your maven java project  (as per the *step 6, step 7 of Prerequisites* section).
-2. Create new file named *Producer.java* in directory *wd* with following code after you replace values of variables configurationFilePath, profile ,ociStreamOcid and ociMessageEndpoint in the follwing code snippet with values applicable for your tenancy. 
+1. Open your favorite editor, such as [Visual Studio Code](https://code.visualstudio.com) from the directory *wd*. You should already have Kafka dependencies for Java as part of your *pom.xml* of your maven java project  (as per the *step 6, step 7 of Prerequisites* section).
+2. Create new file named *Producer.java* in this directory and paste the following code in it. You also need to replace values of config variables in the map `conf` and the name of topic is the name of stream you created. You should already have all the Kafka config info and topic name(stream name) from the step 2 of the Prerequisites section of this tutorial.
 ```Java
-package oci.sdk.oss.example;
-
-import com.oracle.bmc.ConfigFileReader;
-import com.oracle.bmc.auth.AuthenticationDetailsProvider;
-import com.oracle.bmc.auth.ConfigFileAuthenticationDetailsProvider;
-import com.oracle.bmc.streaming.StreamClient;
-import com.oracle.bmc.streaming.model.PutMessagesDetails;
-import com.oracle.bmc.streaming.model.PutMessagesDetailsEntry;
-import com.oracle.bmc.streaming.model.PutMessagesResultEntry;
-import com.oracle.bmc.streaming.requests.PutMessagesRequest;
-import com.oracle.bmc.streaming.responses.PutMessagesResponse;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-public class Producer {
-    public static void main(String[] args) throws Exception {
-        final String configurationFilePath = "~/.oci/config";
-        final String profile = "DEFAULT";
-        final String ociStreamOcid = "ocid1.stream.oc1.ap-mumbai-1." +
-                "amaaaaaauwpiejqaxcfc2ht67wwohfg7mxcstfkh2kp3hweeenb3zxtr5khq";
-        final String ociMessageEndpoint = "https://cell-1.streaming.ap-mumbai-1.oci.oraclecloud.com";
-
-
-        final ConfigFileReader.ConfigFile configFile = ConfigFileReader.parseDefault();
-        final AuthenticationDetailsProvider provider =
-                new ConfigFileAuthenticationDetailsProvider(configFile);
-
-        // Streams are assigned a specific endpoint url based on where they are provisioned.
-        // Create a stream client using the provided message endpoint.
-        StreamClient streamClient = StreamClient.builder().endpoint(ociMessageEndpoint).build(provider);
-
-        // publish some messages to the stream
-        publishExampleMessages(streamClient, ociStreamOcid);
-
-    }
-
-    private static void publishExampleMessages(StreamClient streamClient, String streamId) {
-        // build up a putRequest and publish some messages to the stream
-        List<PutMessagesDetailsEntry> messages = new ArrayList<>();
-        for (int i = 0; i < 50; i++) {
-            messages.add(
-                    PutMessagesDetailsEntry.builder()
-                            .key(String.format("messageKey%s", i).getBytes(UTF_8))
-                            .value(String.format("messageValue%s", i).getBytes(UTF_8))
-                            .build());
-        }
-
-        System.out.println(
-                String.format("Publishing %s messages to stream %s.", messages.size(), streamId));
-        PutMessagesDetails messagesDetails =
-                PutMessagesDetails.builder().messages(messages).build();
-
-        PutMessagesRequest putRequest =
-                PutMessagesRequest.builder()
-                        .streamId(streamId)
-                        .putMessagesDetails(messagesDetails)
-                        .build();
-
-        PutMessagesResponse putResponse = streamClient.putMessages(putRequest);
-
-        // the putResponse can contain some useful metadata for handling failures
-        for (PutMessagesResultEntry entry : putResponse.getPutMessagesResult().getEntries()) {
-            if (StringUtils.isNotBlank(entry.getError())) {
-                System.out.println(
-                        String.format("Error(%s): %s", entry.getError(), entry.getErrorMessage()));
-            } else {
-                System.out.println(
-                        String.format(
-                                "Published message to partition %s, offset %s.",
-                                entry.getPartition(),
-                                entry.getOffset()));
-            }
-        }
-    }
-
-
-}
 
 
 ```
 3.   Run the code on the terminal(from the same directory *wd*) follows 
 ```Shell
-mvn install exec:java -Dexec.mainClass=oci.sdk.oss.example.Producer
+mvn install exec:java -Dexec.mainClass=kafka.sdk.oss.example.Producer
 ```
 4. In the OCI Web Console, quickly go to your Stream Page and click on *Load Messages* button. You should see the messages we just produced as below.
 ![See Produced Messages in OCI Wb Console](https://github.com/mayur-oci/OssJs/blob/main/JavaScript/StreamExampleLoadMessages.png?raw=true)
