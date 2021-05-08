@@ -49,10 +49,71 @@ This quickstart shows how to produce messages to and consume messages from an [O
 
 ## Producing messages to OSS
 1. Open your favorite editor, such as [Visual Studio Code](https://code.visualstudio.com) from the directory *wd*. You should already have Kafka dependencies for Java as part of your *pom.xml* of your maven java project  (as per the *step 6, step 7 of Prerequisites* section).
-2. Create new file named *Producer.java* in this directory and paste the following code in it. You also need to replace values of config variables in the map `conf` and the name of topic is the name of stream you created. You should already have all the Kafka config info and topic name(stream name) from the step 2 of the Prerequisites section of this tutorial.
+2. Create new file named *Producer.java* in `wd` directory under the path `/src/main/java/kafka/sdk/oss/example/` and paste the following code in it. You also need to replace values of static variables in the code namely `bootstrapServers` to `streamOrKafkaTopicName`, as directed by code comments .  These variables are for Kafka connection settings. You should already have all the this info and topic name(stream name) from the step 2 of the Prerequisites section of this tutorial.
 ```Java
+package kafka.sdk.oss.example;
 
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.StringSerializer;
 
+import java.util.Properties;
+
+public class Producer {
+
+    static String bootstrapServers = "<end point of the bootstrap servers>", #usually of the form cell-1.streaming.[region code].oci.oraclecloud.com:9092 ;
+    static String tenancyName = "<YOUR_TENANCY_NAME>";
+    static String username = "<YOUR_OCI_USERNAME>";
+    static String streamPoolId = "<OCID_FOR_STREAMPOOL_OF_THE_STREAM>;
+    static String authToken = "<YOUR_OCI_AUTH_TOKEN>"; // from step 8 of Prerequisites section
+    static String streamOrKafkaTopicName = "<YOUR_STREAM_NAME>"; // from step 2 of Prerequisites section
+
+    private static Properties getKafkaProperties() {
+        Properties properties = new Properties();
+        properties.put("bootstrap.servers", bootstrapServers);
+        properties.put("security.protocol", "SASL_SSL");
+        properties.put("sasl.mechanism", "PLAIN");
+        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+
+        final String value = "org.apache.kafka.common.security.plain.PlainLoginModule required username=\""
+                + tenancyName + "/"
+                + username + "/"
+                + streamPoolId + "\" "
+                + "password=\""
+                + authToken + "\";";
+        properties.put("sasl.jaas.config", value);
+        properties.put("retries", 3); // retries on transient errors and load balancing disconnection
+        properties.put("max.request.size", 1024 * 1024); // limit request size to 1MB
+        return properties;
+    }
+
+    public static void main(String args[]) {
+        try {
+            Properties properties = getKafkaProperties();
+            KafkaProducer producer = new KafkaProducer<>(properties);
+
+            for(int i=0;i<10;i++) {
+                ProducerRecord<String, String> record = new ProducerRecord<>(streamOrKafkaTopicName, "messageKey" + i, "messageValue" + i);
+                producer.send(record, (md, ex) -> {
+                    if (ex != null) {
+                        System.err.println("exception occurred in producer for review :" + record.value()
+                                + ", exception is " + ex);
+                        ex.printStackTrace();
+                    } else {
+                        System.err.println("Sent msg to " + md.partition() + " with offset " + md.offset() + " at " + md.timestamp());
+                    }
+                });
+            }
+            // producer.send() is async, to make sure all messages are sent we use producer.flush()
+            producer.flush();
+            producer.close();
+        } catch (Exception e) {
+            System.err.println("Error: exception " + e);
+        }
+    }
+}
 ```
 3.   Run the code on the terminal(from the same directory *wd*) follows 
 ```Shell
