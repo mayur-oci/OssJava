@@ -65,7 +65,7 @@ public class Producer {
     static String bootstrapServers = "<end point of the bootstrap servers>", #usually of the form cell-1.streaming.[region code].oci.oraclecloud.com:9092 ;
     static String tenancyName = "<YOUR_TENANCY_NAME>";
     static String username = "<YOUR_OCI_USERNAME>";
-    static String streamPoolId = "<OCID_FOR_STREAMPOOL_OF_THE_STREAM>;
+    static String streamPoolId = "<OCID_FOR_STREAMPOOL_OF_THE_STREAM>";
     static String authToken = "<YOUR_OCI_AUTH_TOKEN>"; // from step 8 of Prerequisites section
     static String streamOrKafkaTopicName = "<YOUR_STREAM_NAME>"; // from step 2 of Prerequisites section
 
