@@ -2,7 +2,7 @@
 
 # Quickstart with OCI Java SDK for OSS
 
-This quickstart shows how to produce messages to and consume messages from an [Oracle Streaming Service](https://docs.oracle.com/en-us/iaas/Content/Streaming/Concepts/streamingoverview.htm) using the [Kafka Java Client](https://docs.confluent.io/clients-kafka-java/current/overview.html). Please note, OSS is API compatible with Apache Kafka. Hence developers who are already familiar with Kafka need to make only few minimal changes to their Kafka client code, like config values like endpoint for Kafka brokers!
+This quickstart shows how to produce messages to and consume messages from an [Oracle Streaming Service](https://docs.oracle.com/en-us/iaas/Content/Streaming/Concepts/streamingoverview.htm) using the [Kafka Java Client](https://docs.confluent.io/clients-kafka-java/current/overview.html). Please note, OSS is API compatible with Apache Kafka. Hence developers who are already familiar with Kafka need to make only few minimal changes to their Kafka client code, like config values(connection settings) for Kafka brokers!
 
 ## Prerequisites
 
@@ -48,8 +48,8 @@ This quickstart shows how to produce messages to and consume messages from an [O
 8.  Authentication with the Kafka protocol uses auth-tokens and the SASL/PLAIN mechanism. Follow  [Working with Auth Tokens](https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/managingcredentials.htm#Working)  for auth-token generation. Since you have created the stream(aka Kafka Topic) and Streampool in OCI, you are already authorized to use this stream as per OCI IAM. Hence create auth-token for your user in OCI. These  `OCI user auth-tokens`  are visible only once at the time of creation. Hence please copy it and keep it somewhere safe, as we are going to need it later.
 
 ## Producing messages to OSS
-1. Open your favorite editor, such as *Intellij Idea* from the directory *wd*. You should already have Kafka dependencies for Java as part of your *pom.xml* of your maven java project  (as per the *step 6, step 7 of Prerequisites* section).
-2. Create new file named *Producer.java* in `wd` directory under the path `/src/main/java/kafka/sdk/oss/example/` and paste the following code in it. You also need to replace values of static variables in the code namely `bootstrapServers` to `streamOrKafkaTopicName`, as directed by code comments .  These variables are for Kafka connection settings. You should already have all the this info and topic name(stream name) from the step 2 of the Prerequisites section of this tutorial.
+1. Open your favorite editor, such as *Intellij Idea* from the directory *wd*. You should already have Kafka SDK dependencies for Java, as part of your *pom.xml* of your maven java project (as per the *step 6, step 7 of Prerequisites* section).
+2. Create new file named *Producer.java* in `wd` directory under the path `/src/main/java/kafka/sdk/oss/example/` and paste the following code in it. You also need to replace values of static variables in the code namely `bootstrapServers` to `streamOrKafkaTopicName`, as directed by code comments .  These variables are for Kafka connection settings. You should already have all the this info and topic(in OSS parlance *Stream*) name from the step 2 of the Prerequisites section of this tutorial.
 ```Java
 package kafka.sdk.oss.example;
 
@@ -124,15 +124,15 @@ mvn clean install exec:java -Dexec.mainClass=kafka.sdk.oss.example.Producer
 
   
 ## Consuming messages from OSS
-1. First produce messages to the stream you want to consumer message from unless you already have messages in the stream. You can produce message easily from *OCI Web Console* using simple *Produce Test Message* button as shown below
+1. First produce messages to the stream you want to consume message from unless you already have messages in the stream. You can produce message easily from *OCI Web Console* using simple *Produce Test Message* button as shown below
 ![Produce Test Message Button](https://github.com/mayur-oci/OssJs/blob/main/JavaScript/ProduceButton.png?raw=true)
  
  You can produce multiple test messages by clicking *Produce* button back to back, as shown below
 ![Produce multiple test message by clicking Produce button](https://github.com/mayur-oci/OssJs/blob/main/JavaScript/ActualProduceMessagePopUp.png?raw=true)
 
-2. Open your favorite editor, such as *Intellij Idea* from the directory *wd*. You should already have oci-sdk dependencies for Java as part of your *pom.xml* of your maven java project  (as per the *step 6, step 7 of Prerequisites* section).
+2. Open your favorite code editor, such as *Intellij Idea* from the directory *wd*. You should already have Kafka SDK dependencies for Java as part of your *pom.xml* of your maven java project(as per the *step 6, step 7 of Prerequisites* section).
 
-3. Create new file named *Consumer.java* in directory *wd* directory under the path `/src/main/java/kafka/sdk/oss/example/` and paste the following code in it. You also need to replace values of static variables in the code namely `bootstrapServers` to `streamOrKafkaTopicName`, as directed by code comments . These variables are for Kafka connection settings. You should already have all the this info and topic name(stream name) from the step 2 of the Prerequisites section of this tutorial.
+3. Create new file named *Consumer.java* in directory *wd* directory under the path `/src/main/java/kafka/sdk/oss/example/` and paste the following code in it. You also need to replace values of static variables in the code namely `bootstrapServers` to `consumerGroupName`, as directed by code comments . These variables are for Kafka connection settings. You should already have all the this info and topic(in OSS parlance *Stream*) name from the step 2 of the Prerequisites section of this tutorial.
 ```Java
 package kafka.sdk.oss.example;
 
