@@ -62,7 +62,7 @@ import java.util.Properties;
 
 public class Producer {
 
-    static String bootstrapServers = "<end point of the bootstrap servers>", #usually of the form cell-1.streaming.[region code].oci.oraclecloud.com:9092 ;
+    static String bootstrapServers = "<end point of the bootstrap servers>", //usually of the form cell-1.streaming.[region code].oci.oraclecloud.com:9092 ;
     static String tenancyName = "<YOUR_TENANCY_NAME>";
     static String username = "<YOUR_OCI_USERNAME>";
     static String streamPoolId = "<OCID_FOR_STREAMPOOL_OF_THE_STREAM>";
