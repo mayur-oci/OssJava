@@ -213,3 +213,4 @@ Please refer to
 
  1. [Kafka Producer API Java Docs](https://kafka.apache.org/22/javadoc/org/apache/kafka/clients/producer/ProducerConfig.html) 
  2. [Kafka Consumer API Java Docs](https://kafka.apache.org/22/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html)
+ 3. [Kafka API support for OSS](https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/kafkacompatibility.htm#kafka_apis)
